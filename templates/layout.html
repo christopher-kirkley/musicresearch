@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  </head>
+  <body>
+	<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+	</nav>
+
+	<!-- NAVBAR -->
+	<div id="content" class="container-fluid mt-md-5"> 
+	  <div class="row">
+		<nav class="col-md-2 border-right bg-light sidebar">
+		  <ul class="nav flex-column" id="projects">
+			<li class="nav-item">
+			  <a class="nav-link" href="/">Dashboard</a>
+			</li>
+			<li class="nav-item">
+			  <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+				<span>Projects</span>
+				<a class="d-flex align-items-center text-muted" href={{ url_for('add_project') }}>
+				  <span data-feather="plus-circle"></span>
+				</a>
+			  </h6>
+			</li>
+		  </ul>
+		</nav>
+		<div class="col-md-10">
+		  {% block content %}
+		  {% endblock %}
+		</div>
+	  </div>
+	</div>
+
+	<!-- js -->
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+	<!-- Populate sidebar projects. -->
+	<script>
+	  document.addEventListener('DOMContentLoaded', () => {
+		get_projects();
+	  });
+
+function get_projects() {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '/get_projects');
+  xhr.onload = function() {
+	const response = xhr.responseText;
+	const respJSON = JSON.parse(response);
+	respJSON.forEach(function(item){
+	  var projects = document.querySelector('#projects');
+	  var project = document.createElement('li');
+	  project.className = 'nav-item';
+	  var project_link = document.createElement('a');
+	  project_link.className = 'nav-link';
+	  var url = `/${item[0]}`;
+	  project_link.href = url;
+	  project_link.innerHTML = item[1];
+	  project.appendChild(project_link);
+	  projects.appendChild(project);
+	});
+  };
+  xhr.send();
+};
+
+
+	</script>
+	<!-- Icons -->
+	<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+	<script>
+	  feather.replace()
+	</script>
+
+	{% block script %}
+	{% endblock %}
+  </body>
+</html>

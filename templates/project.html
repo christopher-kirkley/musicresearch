@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="jumbotron">
+	<h2>{{ project.name }}</h2>
+	<lead>{{ project.description }}</lead>
+	<h4><a target="_blank" href="{{ project.evernote }}">Project Link</a></h4>
+</div>
+
+<div>
+	<h4 class="h4">Add new contact</h4>
+	<form method="post" action="{{ url_for('project', id=project.project_id) }}">
+		<div class="form-group">
+			<label labelfor="name">Name</label>
+			<input type="text" class="form-control" name="name" id="name">
+		</div>
+		<div class="form-group">
+			<label>Link</label>
+			<input type="text" class="form-control" name="link" id="link">
+		</div>
+		<div class="form-group">
+			<label>Notes</label>
+			<input type="text" class="form-control" name="notes" id="notes">
+		</div>
+		<div class="form-check form-check-inline">
+			<input class="form-check-input" type="radio" name="in-contact" id="in-contact" value="0" checked="true">
+			<label class="form-check-label" for="inlineRadio1">In-Progress</label>
+		</div>
+		<div class="form-check form-check-inline">
+			<input class="form-check-input" type="radio" name="in-contact" id="in-contact" value="1">
+			<label class="form-check-label" for="inlineRadio2">In-Contact</label>
+		</div>
+		<input type="submit" class="btn btn-primary" name="submit">
+	</form>
+</div>
+
+
+<div>
+	<h4>In-Progress</h4>
+	<table class="table border">
+		<thead>
+			<th>Name</th>
+			<th>Link</th>
+			<th>Last Checked</th>
+			<th>Notes</th>
+			<th></th>
+		</thead>
+		<tbody>
+		{% for contact in queued_contacts %}
+			<tr>
+			<td>{{ contact.name }}</td>
+			<td><a href="{{ contact.link }}" target="_blank">{{ contact.link }}</a></td>
+			<td>{{ contact.checked }}</td>
+			<td>{{ contact.notes }}</td>
+			<form method="post" action="">
+				<input type="hidden" name="id" value="{{ contact.contact_id }}">
+			<td><input type="submit" value="Update" name="update" class="btn btn-primary"></td>
+			<td><input type="submit" value="Delete" name="delete" class="btn btn-danger btn-sm"></td>
+			</form>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+<div>
+	<h4>In-Contact</h4>
+	<table class="table border">
+		<thead>
+			<th>Name</th>
+			<th>Link</th>
+			<th>Last Checked</th>
+			<th>Notes</th>
+			<th></th>
+		</thead>
+		<tbody>
+		{% for contact in current_contacts %}
+			<tr>
+			<td>{{ contact.name }}</td>
+			<td><a href="{{ contact.link }}" target="_blank">{{ contact.link }}</a></td>
+			<td>{{ contact.checked }}</td>
+			<td>{{ contact.notes }}</td>
+			<td><button class="btn btn-primary btn-sm">Checked</button></td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}
+
