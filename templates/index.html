@@ -3,7 +3,7 @@
 <ul class="list-group">
 	<h1>Projects</h1>
 	{% for project in projects %}
-	<li class="list-group-item"><a href="{{url_for('project', id=project.project_id)}}">{{ project.name }}</a></li>
+	<li class="list-group-item"><a href="{{url_for('project', project_id=project.project_id)}}">{{ project.name }}</a></li>
 	{% endfor %}
 </ul>
 {% endblock %}

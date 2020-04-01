@@ -1,8 +1,18 @@
-from wtforms import Form, BooleanField, StringField, validators, RadioField
+from flask_wtf import FlaskForm
+from wtforms import BooleanField, StringField, validators, RadioField, SubmitField, TextAreaField
+from wtforms.validators import DataRequired
 
-class ContactForm(Form):
-    name = StringField('Name', [validators.Length(min=4, max=25)])
-    link = StringField('Link', [validators.Length(min=4, max=200)])
-    notes = StringField('Name', [validators.Length(min=4, max=200)])
-    in_contact = RadioField(choices=[(1, 'In-Progress'),(2, 'In-Contact')])
+class ContactForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()]) 
+    link = StringField('Link', validators=[DataRequired()])
+    notes = StringField('Notes', validators=[DataRequired()])
+    in_contact = RadioField(choices=[(0, 'In-Progress'),(1, 'In-Contact')], coerce=int)
+
+    submit = SubmitField('Submit')
+
+class ProjectForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    evernote = StringField('Link', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
