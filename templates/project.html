@@ -53,24 +53,56 @@
 			<th></th>
 			<th></th>
 		</thead>
-		<tbody>
-		{% for contact in queued_contacts %}
-			<tr>
-			<td>{{ contact.name }}</td>
-			<td><a href="{{ contact.link }}" target="_blank">{{ contact.link }}</a></td>
-			<td>{{ contact.checked }}</td>
-			<td>{{ contact.notes }}</td>
-			<form method="post" action="">
-				<input type="hidden" name="id" value="{{ contact.contact_id }}">
-			<td><input type="submit" value="Update" name="update" class="btn btn-primary btn-sm"></td>
-			<td><input type="submit" value="Edit" name="edit" class="btn btn-warning btn-sm"></td>
-			<td><input type="submit" value="Delete" name="delete" class="btn btn-danger btn-sm"></td>
-			</form>
-			</tr>
-		{% endfor %}
+		<tbody id="contact-table">
+		<!-- {% for contact in queued_contacts %} -->
+		<!-- 	<tr> -->
+		<!-- 	<td>{{ contact.name }}</td> -->
+		<!-- 	<td><a href="{{ contact.link }}" target="_blank">{{ contact.link }}</a></td> -->
+		<!-- 	<td>{{ contact.checked }}</td> -->
+		<!-- 	<td>{{ contact.notes }}</td> -->
+		<!-- 	<form method="post" action=""> -->
+		<!-- 		<input type="hidden" name="id" value="{{ contact.contact_id }}"> -->
+		<!-- 	<td><input type="submit" value="Update" name="update" class="btn btn-primary btn-sm"></td> -->
+		<!-- 	<td><input type="submit" value="Edit" name="edit" class="btn btn-warning btn-sm"></td> -->
+		<!-- 	<td><input type="submit" value="Delete" name="delete" class="btn btn-danger btn-sm"></td> -->
+		<!-- 	</form> -->
+		<!-- 	</tr> -->
+		<!-- {% endfor %} -->
 		</tbody>
 	</table>
 </div>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		fetch('http://localhost:5000/get_contacts/{{ project.project_id }}')
+			.then((response) => {
+				return response.json();
+			})
+			.then((data) => {
+				addContactToTable(data);
+			});
+	});
+
+function addContactToTable(contacts) {
+	var contact_table = document.querySelector('#contact-table');
+	contacts.forEach((contact) => {
+		var tr = document.createElement('tr');
+		tr.innerHTML = `<td>${contact['name']}</td>
+										<td><a href=${contact['link']} target="_blank">${contact['link']}</a></td>
+										<td>${contact['checked']}</td>
+										<td>${contact['notes']}</td>
+										<input type="hidden" name="id" value="${contact['contact_id']}">
+										<td><button type="submit" id="update" value="Update" name="update" class="btn btn-primary btn-sm">Update</button></td>
+										<td><button type="submit" id="edit" value="Edit" name="edit" class="btn btn-warning btn-sm">Edit</button></td>
+										<td><button type="submit" id="delete" value="Delete" name="delete" class="btn btn-danger btn-sm">Delete</button></td>
+										`
+		contact_table.appendChild(tr);
+	});
+	
+};
+
+
+
+</script>
 
 <!-- <div class="jumbotron"> -->
 <!-- 	<h4>In-Contact</h4> -->

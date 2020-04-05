@@ -1,13 +1,18 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for
-from sqlalchemy import create_engine, desc
+from flask_cors import CORS
+from sqlalchemy import create_engine, desc, Column, String, Integer, Boolean, Date, func
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
+
 from datetime import date
 
 from config import Config
 from forms import ContactForm, ProjectForm
 
+
 app = Flask(__name__)
+CORS(app)
 
 config = Config()
 
@@ -24,15 +29,38 @@ metadata.bind=engine
 # Models - declarative auto-load
 class Contact(Base):
     __tablename__ = 'contact'
-    __table_args__ = {'autoload':True}
+    contact_id = Column(Integer, primary_key=True)
+    project_id = Column(Integer)
+    name = Column(String(200))
+    link = Column(String(300))
+    checked = Column(Date, nullable=False, default=func.now())
+    in_contact = Column(Boolean, nullable=False, default=False)
+    notes = Column(String(500))
+    active = Column(Boolean, nullable=False, default=True)
 
 class Project(Base):
     __tablename__ = 'project'
     __table_args__ = {'autoload':True}
 
+class ContactSchema(SQLAlchemySchema):
+    class Meta:
+        model = Contact
+        load_instance = True
+
+    contact_id = auto_field()
+    project_id = auto_field()
+    name = auto_field()
+    link = auto_field()
+    checked = auto_field()
+    in_contact = auto_field()
+    notes = auto_field()
+    active = auto_field()
+    
+contact_schema = ContactSchema()
+contacts_schema = ContactSchema(many=True)
+
 @app.route('/', methods=['GET'])
 def index():
-    # x = db_session.execute("SELECT * FROM contact;").fetchall()
     projects = db_session.query(Project).all()
     return render_template('index.html', projects=projects)
 
@@ -156,9 +184,14 @@ def _del_contact():
     
 @app.route('/get_projects', methods=['GET'])
 def get_projects():
-    # x = db_session.execute("SELECT * FROM contact;").fetchall()
     projects = db_session.query(Project.project_id, Project.name).order_by(Project.name).all()
     return jsonify(projects)
+
+@app.route('/get_contacts/<project_id>', methods=['GET'])
+def get_project(project_id):
+    contacts = db_session.query(Contact.contact_id, Contact.name, Contact.link, Contact.checked, Contact.notes).filter(Contact.project_id == project_id).all()
+    result = contacts_schema.dump(contacts)
+    return jsonify(result)
 
 if __name__ == '__main__':
     app.run(debug=True)
