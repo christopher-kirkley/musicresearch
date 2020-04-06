@@ -2,6 +2,8 @@
 <html>
   <head>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<link rel="shortcut icon" href="">
+	
   </head>
   <body>
 	<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
@@ -45,19 +47,20 @@
 
 function get_projects() {
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', '/get_projects');
+  xhr.open('GET', '/api/v1.0/project');
   xhr.onload = function() {
 	const response = xhr.responseText;
 	const respJSON = JSON.parse(response);
+		console.log(respJSON);
 	respJSON.forEach(function(item){
 	  var projects = document.querySelector('#projects');
 	  var project = document.createElement('li');
 	  project.className = 'nav-item';
 	  var project_link = document.createElement('a');
 	  project_link.className = 'nav-link';
-	  var url = `/${item[0]}`;
+	  var url = `/${item['project_id']}`;
 	  project_link.href = url;
-	  project_link.innerHTML = item[1];
+	  project_link.innerHTML = item['name'];
 	  project.appendChild(project_link);
 	  projects.appendChild(project);
 	});

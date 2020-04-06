@@ -55,14 +55,27 @@ class ContactSchema(SQLAlchemySchema):
     in_contact = auto_field()
     notes = auto_field()
     active = auto_field()
+
+class ProjectSchema(SQLAlchemySchema):
+    class Meta:
+        model = Project
+        load_instance = True
+
+    project_id = auto_field()
+    name = auto_field()
+    evernote = auto_field()
+    description = auto_field()
+    active = auto_field()
     
 contact_schema = ContactSchema()
 contacts_schema = ContactSchema(many=True)
 
+project_schema = ProjectSchema()
+projects_schema = ProjectSchema(many=True)
+
 @app.route('/', methods=['GET'])
 def index():
-    projects = db_session.query(Project).all()
-    return render_template('index.html', projects=projects)
+    return render_template('index.html') 
 
 @app.route('/add_project', methods=['GET', 'POST'])
 def add_project():
@@ -178,20 +191,98 @@ def edit_contact(project_id, contact_id):
 
     return render_template('edit_contact.html', form=form)
 
-@app.route('/_del_contact', methods=['GET'])
-def _del_contact():
-    return 'success'
-    
-@app.route('/get_projects', methods=['GET'])
-def get_projects():
-    projects = db_session.query(Project.project_id, Project.name).order_by(Project.name).all()
-    return jsonify(projects)
+@app.route('/api/v1.0/project', methods=['GET'])
+def get_all_projects():
+    projects = db_session.query(Project).order_by(Project.name).all()
+    result = projects_schema.dump(projects)
+    return jsonify(result)
 
-@app.route('/get_contacts/<project_id>', methods=['GET'])
+@app.route('/api/v1.0/project', methods=['POST'])
+def create_project():
+    data = request.get_json()
+    new_project = Project(
+                        name=data['name'],
+                        evernote=data['evernote'],
+                        description=data['description'],
+                        )
+    db_session.add(new_project)
+    db_session.commit()
+    return jsonify({'success': 'true'})
+
+@app.route('/api/v1.0/project/<project_id>', methods=['GET'])
 def get_project(project_id):
-    contacts = db_session.query(Contact.contact_id, Contact.name, Contact.link, Contact.checked, Contact.notes).filter(Contact.project_id == project_id).all()
+    project = db_session.query(Project).filter(Project.project_id==project_id).first()
+    result = project_schema.dump(project)
+    return jsonify(result)
+
+@app.route('/api/v1.0/project/<project_id>', methods=['PUT'])
+def update_project(project_id):
+    data = request.get_json()
+    project = db_session.query(Project).get(project_id)
+
+    if 'name' in data:
+        project.name=data['name']
+    if 'evernote' in data:
+        project.evernote=data['evernote']
+    if 'description' in data:
+        project.description = data['description']
+    db_session.commit()
+    return jsonify({'success': 'project updated'})
+
+@app.route('/api/v1.0/project/<project_id>', methods=['DELETE'])
+def delete_project(project_id):
+    db_session.query(Project).filter(Project.project_id==project_id).delete()
+    db_session.commit()
+    return jsonify({'success': 'project delete'})
+
+@app.route('/api/v1.0/project/<project_id>/contact', methods=['GET'])
+def get_project_contacts(project_id):
+    contacts = db_session.query(Contact).filter(Contact.project_id == project_id).all()
     result = contacts_schema.dump(contacts)
     return jsonify(result)
+    
+@app.route('/api/v1.0/contact', methods=['POST'])
+def create_contact():
+    data = request.get_json()
+    new_contact = Contact(
+                        project_id=data['project_id'],
+                        name=data['name'],
+                        link=data['link'],
+                        in_contact=data['in_contact'],
+                        notes=data['notes'],
+                        )
+    db_session.add(new_contact)
+    db_session.commit()
+    return jsonify({'success': 'true'})
+
+@app.route('/api/v1.0/contact/<contact_id>', methods=['GET'])
+def get_contact(contact_id):
+    contact = db_session.query(Contact).filter(Contact.contact_id==contact_id).first()
+    result = contact_schema.dump(contact)
+    return jsonify(result)
+
+@app.route('/api/v1.0/contact/<contact_id>', methods=['PUT'])
+def update_contact(contact_id):
+    data = request.get_json()
+    contact = db_session.query(Contact).get(contact_id)
+
+    if 'name' in data:
+        contact.name=data['name']
+    if 'link' in data:
+        contact.link=data['link']
+    if 'in_contact' in data:
+        contact.in_contact=data['in_contact']
+    if 'notes' in data:
+        contact.notes=data['notes']
+    db_session.commit()
+    return jsonify({'success': 'contact updated'})
+
+@app.route('/api/v1.0/contact/<contact_id>', methods=['DELETE'])
+def delete_contact(contact_id):
+    db_session.query(Contact).filter(Contact.contact_id==contact_id).delete()
+    db_session.commit()
+    return jsonify({'success': 'contact delete'})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
