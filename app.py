@@ -75,30 +75,45 @@ projects_schema = ProjectSchema(many=True)
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html') 
+
+    today = date.today()
+    
+    pending_contacts = (db_session.query(Contact.contact_id,
+                                        Contact.name.label('contact_name'),
+                                        Contact.link,
+                                        Contact.checked,
+                                        Project.project_id,
+                                        Project.name.label('project_name'),
+                                        Project.evernote)
+                                        .join(Project, Project.project_id == Contact.project_id)
+                                        .order_by(Contact.checked)
+                                        .filter(today - Contact.checked > 7)
+                                        .all()
+                                        )
+
+    return render_template('dashboard.html', pending_contacts=pending_contacts)
 
 @app.route('/add_project', methods=['GET', 'POST'])
 def add_project():
 
     title = 'Add Project'
     
-    form = ProjectForm()
 
-    if request.method == 'POST':
-        name = request.form.get('name')
-        link = request.form.get('link')
-        description = request.form.get('description')
+    # if request.method == 'POST':
+    #     name = request.form.get('name')
+    #     link = request.form.get('link')
+    #     description = request.form.get('description')
 
-        new_project = Project(
-                            name=name,
-                            evernote=link,
-                            description=description,
-                            active=bool(0)
-                            )
-        db_session.add(new_project)
-        db_session.commit()
+    #     new_project = Project(
+    #                         name=name,
+    #                         evernote=link,
+    #                         description=description,
+    #                         active=bool(0)
+    #                         )
+    #     db_session.add(new_project)
+    #     db_session.commit()
 
-    return render_template('add_project.html', title=title, form=form)
+    return render_template('add_project.html', title=title)
 
 @app.route('/edit_project/<int:project_id>', methods=['GET', 'POST'])
 def edit_project(project_id):
@@ -148,16 +163,11 @@ def project(project_id):
         db_session.commit()
     if request.form.get('edit'):
         return redirect(url_for('edit_contact', contact_id=contact_id, project_id=project_id))
-    if request.form.get('delete'):
-        id_to_delete = request.form.get('id')
-        db_session.query(Contact).filter(Contact.contact_id==id_to_delete).delete()
-        db_session.commit()
-        return redirect(url_for('project', project_id=project_id))
 
     queued_contacts = (db_session
             .query(Contact)
             .filter(Contact.project_id == project_id)
-            # .filter(Contact.in_contact == 'false')
+            .filter(Contact.in_contact == 'false')
             .all()
             )
     current_contacts = (db_session
@@ -188,18 +198,23 @@ def edit_contact(project_id, contact_id):
         contact_obj.notes=form.notes.data
         db_session.commit()
         return redirect(url_for('project', project_id=project_id, contact_id=contact_id))
+    if request.form.get('delete'):
+        db_session.query(Contact).filter(Contact.contact_id==contact_id).delete()
+        db_session.commit()
+        return redirect(url_for('project', project_id=project_id))
 
     return render_template('edit_contact.html', form=form)
 
 @app.route('/api/v1.0/project', methods=['GET'])
 def get_all_projects():
     projects = db_session.query(Project).order_by(Project.name).all()
+    db_session.close()
     result = projects_schema.dump(projects)
     return jsonify(result)
 
 @app.route('/api/v1.0/project', methods=['POST'])
 def create_project():
-    data = request.get_json()
+    data = request.get_json(force=True)
     new_project = Project(
                         name=data['name'],
                         evernote=data['evernote'],

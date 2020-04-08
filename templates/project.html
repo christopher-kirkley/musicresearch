@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="jumbotron">
+<div class="border p-3">
 	<div class="row">
 		<div class="col-md-11">
 			<h2>{{ project.name }}</h2>
@@ -16,7 +16,50 @@
 	</div>
 </div>
 
-<div class="jumbotron">
+<div class="border p-3"> 
+	<table class="table table-sm">
+		<thead class="thead-dark">
+			<th>Name</th>
+			<th></th>
+			<th>Checked</th>
+			<th>Notes</th>
+			<th></th>
+			<th></th>
+		</thead>
+		<tbody class="alert alert-primary" id="contact-table">
+		{% for contact in queued_contacts %}
+			<tr>
+			<td>{{ contact.name }}</td>
+			<td><a href="{{ contact.link }}" target="_blank" class="btn btn-primary btn-sm" role="button">Link</a></td>
+			<td nowrap>{{ contact.checked }}</td>
+			<td>{{ contact.notes }}</td>
+			<form method="post" action="">
+				<input type="hidden" name="id" value="{{ contact.contact_id }}">
+			<td><input type="submit" value="Update" name="update" class="btn btn-primary btn-sm"></td>
+			<td><input type="submit" value="Edit" name="edit" class="btn btn-warning btn-sm"></td>
+			</form>
+			</tr>
+		{% endfor %}
+		</tbody>
+		<tbody class="alert alert-success" id="contact-table">
+		{% for contact in current_contacts %}
+			<tr>
+			<td>{{ contact.name }}</td>
+			<td><a href="{{ contact.link }}" target="_blank" class="btn btn-primary btn-sm" role="button">Link</a></td>
+			<td nowrap>{{ contact.checked }}</td>
+			<td>{{ contact.notes }}</td>
+			<form method="post" action="">
+				<input type="hidden" name="id" value="{{ contact.contact_id }}">
+			<td><input type="submit" value="Update" name="update" class="btn btn-primary btn-sm"></td>
+			<td><input type="submit" value="Edit" name="edit" class="btn btn-warning btn-sm"></td>
+			</form>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+<div class="border p-3">
 	<h4 class="h4">Add new contact</h4>
 	<form method="post" action="" enctype="multipart/form-data">
 	{{ form.hidden_tag() }}
@@ -30,103 +73,18 @@
 		</div>
 		<div class="form-group">
 			{{ form.notes.label }}
-			{{ form.notes(class="form-control") }}
+			{{ form.notes(class="form-control", rows="3") }}
 		</div>
-		<div> 
-			{{ form.in_contact.label(class="form-check-label") }}
-			{{ form.in_contact }}
+		<div class="form-check form-check-inline"> 
+			{% for field in form.in_contact %}
+				{{ field.label(class="form-check-label") }}
+				{{ field(class="form-check-input") }}
+			{% endfor %}
 		</div>
+		<div>
 		{{ form.submit(class="btn btn-primary") }}
+		</div>
 	</form>
 </div>
 
-
-<div> 
-	<h4>In-Progress</h4>
-	<table class="table border">
-		<thead class="thead-dark">
-			<th>Name</th>
-			<th>Link</th>
-			<th>Last Checked</th>
-			<th>Notes</th>
-			<th></th>
-			<th></th>
-			<th></th>
-		</thead>
-		<tbody id="contact-table">
-		<!-- {% for contact in queued_contacts %} -->
-		<!-- 	<tr> -->
-		<!-- 	<td>{{ contact.name }}</td> -->
-		<!-- 	<td><a href="{{ contact.link }}" target="_blank">{{ contact.link }}</a></td> -->
-		<!-- 	<td>{{ contact.checked }}</td> -->
-		<!-- 	<td>{{ contact.notes }}</td> -->
-		<!-- 	<form method="post" action=""> -->
-		<!-- 		<input type="hidden" name="id" value="{{ contact.contact_id }}"> -->
-		<!-- 	<td><input type="submit" value="Update" name="update" class="btn btn-primary btn-sm"></td> -->
-		<!-- 	<td><input type="submit" value="Edit" name="edit" class="btn btn-warning btn-sm"></td> -->
-		<!-- 	<td><input type="submit" value="Delete" name="delete" class="btn btn-danger btn-sm"></td> -->
-		<!-- 	</form> -->
-		<!-- 	</tr> -->
-		<!-- {% endfor %} -->
-		</tbody>
-	</table>
-</div>
-<script>
-	document.addEventListener('DOMContentLoaded', () => {
-		fetch('http://localhost:5000/get_contacts/{{ project.project_id }}')
-			.then((response) => {
-				return response.json();
-			})
-			.then((data) => {
-				addContactToTable(data);
-			});
-	});
-
-function addContactToTable(contacts) {
-	var contact_table = document.querySelector('#contact-table');
-	contacts.forEach((contact) => {
-		var tr = document.createElement('tr');
-		tr.innerHTML = `<td>${contact['name']}</td>
-										<td><a href=${contact['link']} target="_blank">${contact['link']}</a></td>
-										<td>${contact['checked']}</td>
-										<td>${contact['notes']}</td>
-										<input type="hidden" name="id" value="${contact['contact_id']}">
-										<td><button type="submit" id="update" value="Update" name="update" class="btn btn-primary btn-sm">Update</button></td>
-										<td><button type="submit" id="edit" value="Edit" name="edit" class="btn btn-warning btn-sm">Edit</button></td>
-										<td><button type="submit" id="delete" value="Delete" name="delete" class="btn btn-danger btn-sm">Delete</button></td>
-										`
-		contact_table.appendChild(tr);
-	});
-	
-};
-
-
-
-</script>
-
-<!-- <div class="jumbotron"> -->
-<!-- 	<h4>In-Contact</h4> -->
-<!-- 	<table class="table border"> -->
-<!-- 		<thead class="thead-dark"> -->
-<!-- 			<th>Name</th> -->
-<!-- 			<th>Link</th> -->
-<!-- 			<th>Last Checked</th> -->
-<!-- 			<th>Notes</th> -->
-<!-- 			<th></th> -->
-<!-- 			<th></th> -->
-<!-- 		</thead> -->
-<!-- 		<tbody> -->
-<!-- 		{% for contact in current_contacts %} -->
-<!-- 			<tr> -->
-<!-- 			<td>{{ contact.name }}</td> -->
-<!-- 			<td><a href="{{ contact.link }}" target="_blank">{{ contact.link }}</a></td> -->
-<!-- 			<td>{{ contact.checked }}</td> -->
-<!-- 			<td>{{ contact.notes }}</td> -->
-<!-- 			<td><button class="btn btn-primary btn-sm">Checked</button></td> -->
-<!-- 			</tr> -->
-<!-- 		{% endfor %} -->
-<!-- 		</tbody> -->
-<!-- 	</table> -->
-<!-- </div> -->
 {% endblock %}
-

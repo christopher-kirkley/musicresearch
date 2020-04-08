@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block content %}
+<div id="app">
+	<h1>Welcome to Music Research</h1>
+	<p>This is an app to track ongoing music research projects.</p>
+</div>
+<div class="border p-3"> 
+	<h4>Pending, older than 7 days</h4>
+	<table class="table table-sm">
+		<thead class="thead-dark">
+			<th>Name</th>
+			<th>Link</th>
+			<th>Checked</th>
+			<th></th>
+			<th></th>
+			<th></th>
+		</thead>
+		<tbody id="contact-table">
+		{% for contact in pending_contacts %}
+			<tr>
+			<td>{{ contact.contact_name }}</td>
+			<td><a href="{{ contact.link }}" target="_blank">{{ contact.link }}</a></td>
+			<td nowrap>{{ contact.checked }}</td>
+			<td>{{ contact.notes }}</td>
+			<form method="post" action="">
+				<input type="hidden" name="id" value="{{ contact.contact_id }}">
+			<td><input type="submit" value="Update" name="update" class="btn btn-primary btn-sm"></td>
+			<td><input type="submit" value="Edit" name="edit" class="btn btn-warning btn-sm"></td>
+			</form>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+	
+{% endblock %}

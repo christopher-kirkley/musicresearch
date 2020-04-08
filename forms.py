@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired
 class ContactForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()]) 
     link = StringField('Link', validators=[DataRequired()])
-    notes = StringField('Notes', validators=[DataRequired()])
+    notes = TextAreaField('Notes', validators=[DataRequired()])
     in_contact = RadioField(choices=[(0, 'In-Progress'),(1, 'In-Contact')], coerce=int)
 
     submit = SubmitField('Submit')

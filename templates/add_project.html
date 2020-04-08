@@ -4,21 +4,20 @@
 	<h2>{{ title }}</h2>
 </div>
 <div class="jumbotron">
-	<form method="post" action="" enctype="multipart/form-data">
-		{{ form.hidden_tag() }}
+	<form method="post" action="" enctype="multipart/form-data" id="project-form">
 		<div class="form-group">
-			{{ form.name.label }}
-			{{ form.name(class="form-control") }}
+			<label for="name">Name</label>
+			<input type="text" class="form-control" id="name" name="name">
 		</div>
 		<div class="form-group">
-			{{ form.evernote.label }}
-			{{ form.evernote(class="form-control", rows="3") }}
+			<label for="evernote">Evernote</label>
+			<input type="text" class="form-control" id="evernote" name="evernote">
 		</div>
 		<div class="form-group">
-			{{ form.description.label }}
-			{{ form.description(class="form-control") }}
+			<label for="description">Description</label>
+			<input type="text" class="form-control" id="description" name="description">
 		</div>
-		{{ form.submit(class="btn btn-primary") }}
+		<input type="submit" class="btn btn-primary">
 	</form>
 </div>
 <div style="text-align: right">
@@ -27,4 +26,34 @@
 	</form>
 </div>
 
-	{% endblock %}
+<script>
+const project_form = document.querySelector('#project-form');
+
+project_form.addEventListener('submit', (e) => {
+	e.preventDefault();
+	const formData = new FormData(project_form);
+	const json = JSON.stringify(Object.fromEntries(formData));
+	console.log(json)
+	fetch('http://localhost:5000/api/v1.0/project', {
+		method: 'post',
+		body: json, 
+		mode: "no-cors"
+	})
+		.then((response) => {
+			return response.text();
+		})
+		.then((text) => {
+			console.log(text);
+		})
+		.catch((error) => {
+			console.log(error)
+		});
+});
+
+
+</script>
+
+{% endblock %}
+
+
+

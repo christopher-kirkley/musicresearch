@@ -17,11 +17,20 @@
 			{{ form.notes.label }}
 			{{ form.notes(class="form-control") }}
 		</div>
-		<div> 
-			{{ form.in_contact.label(class="form-check-label") }}
-			{{ form.in_contact }}
+		<div class="form-check form-check-inline"> 
+			{% for field in form.in_contact %}
+				{{ field.label(class="form-check-label") }}
+				{{ field(class="form-check-input") }}
+			{% endfor %}
 		</div>
+		<div>
 		{{ form.submit(class="btn btn-primary") }}
+		</div>
+	</form>
+</div>
+<div style="text-align: right">
+	<form method="post" action="">
+		<input type="submit" value="Delete" name="delete" class="btn btn-danger btn-sm">
 	</form>
 </div>
 </div>

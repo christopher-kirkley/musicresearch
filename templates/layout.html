@@ -51,7 +51,6 @@ function get_projects() {
   xhr.onload = function() {
 	const response = xhr.responseText;
 	const respJSON = JSON.parse(response);
-		console.log(respJSON);
 	respJSON.forEach(function(item){
 	  var projects = document.querySelector('#projects');
 	  var project = document.createElement('li');
